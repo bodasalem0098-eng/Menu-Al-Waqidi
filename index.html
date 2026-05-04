@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>منيو مطعم الواقدي | الطعم الأصيل</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts (Cairo) -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brandBrown: '#5D4037', 
+                        brandBrownDark: '#3E2723',
+                        brandYellow: '#FFFDE7',
+                        brandGold: '#FBC02D',
+                        brandCream: '#FEF9EF',
+                    },
+                    fontFamily: { cairo: ['Cairo', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+
+   <style>
+    body { font-family: 'Cairo', sans-serif; background-color: #FEF9EF; color: #3E2723; scroll-behavior: smooth; overflow-x: hidden; }
+    
+    /* Landing Screen Styles */
+    #landing-page {
+    position: fixed; inset: 0; z-index: 9999; 
+    display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+    /* تم تحديث الرابط هنا مع الحفاظ على التدرج الظلي */
+    background: linear-gradient(rgba(62, 39, 35, 0.85), rgba(62, 39, 35, 0.95)), url('https://res.cloudinary.com/do0u3he16/image/upload/v1777847893/d17c66373a1f2c9fd1f8dcaf336cd053_jfvw1x.jpg');
+    background-size: cover; 
+    background-position: center;
+    transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow-y: auto; padding-top: 3rem; padding-bottom: 3rem;
+}
+
+    .landing-hidden { opacity: 0; visibility: hidden; pointer-events: none; transform: translateY(-20px); }
+
+    .logo-container {
+        background: rgba(251, 192, 45, 0.1);
+        border: 2px solid #FBC02D;
+        box-shadow: 0 0 40px rgba(251, 192, 45, 0.2);
+    }
+
+    .glass-card {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-blur: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .landing-btn {
+        width: 100%; padding: 1.1rem; border-radius: 1.5rem; font-weight: 900;
+        display: flex; align-items: center; justify-content: center; gap: 0.75rem;
+        transition: all 0.3s;
+    }
+
+    .item-card { background: white; border: 1px solid rgba(93, 64, 55, 0.05); border-radius: 24px; transition: 0.3s; }
+    .item-card:hover { border-color: #FBC02D; transform: translateY(-3px); box-shadow: 0 15px 30px -10px rgba(93, 64, 55, 0.1); }
+    
+    .category-pill {
+        background: white; border: 1px solid rgba(93, 64, 55, 0.1); color: #5D4037;
+        padding: 12px 28px; border-radius: 20px; white-space: nowrap; font-weight: 800;
+        transition: 0.3s;
+    }
+    .category-pill.active { background: #5D4037; color: #FFFDE7; border-color: #3E2723; transform: scale(1.05); box-shadow: 0 8px 20px -5px rgba(62, 39, 35, 0.3); }
+    
+    .type-tab { flex: 1; padding: 14px; border-radius: 16px; font-weight: 900; text-align: center; transition: 0.4s; cursor: pointer; }
+    .type-tab.active { background: #FBC02D; color: #3E2723; shadow: 0 10px 20px rgba(251, 192, 45, 0.2); }
+    .type-tab:not(.active) { background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.4); border: 1px solid rgba(255,255,255,0.05); }
+
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    /* تأثير اللوجو المضيء */
+.logo-glow {
+    filter: drop-shadow(0 0 10px rgba(251, 192, 45, 0.8));
+    animation: glow-pulse 2s ease-in-out infinite alternate;
+}
+
+@keyframes glow-pulse {
+    from { 
+        filter: drop-shadow(0 0 5px rgba(251, 192, 45, 0.6)); 
+    }
+    to { 
+        filter: drop-shadow(0 0 20px rgba(251, 192, 45, 1)); 
+    }
+}
+
+.logo-container {
+    background: rgba(251, 192, 45, 0.05);
+    border: 2px solid #FBC02D;
+    box-shadow: 0 0 40px rgba(251, 192, 45, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+.type-tab { cursor: pointer; transition: 0.3s; }
+.type-tab.active { background: #FBC02D !important; color: #3E2723 !important; }
+#cart-modal { 
+    backdrop-blur: 0px; /* ألغي التغبيش لأنه يلمح بما خلفه */
+    background-color: #FEF9EF; /* نفس لون خلفية المنيو ليكون قطعة واحدة */
+}
+
+/* تأكد من أن الهيدر في السلة ليس له حواف دائرية من الأعلى */
+#cart-modal .bg-brandBrownDark {
+    border-radius: 0 0 2.5rem 2.5rem;
+}
+
+</style>
+</head>
+<body class="antialiased">
+
+    <!-- Landing Screen -->
+    <div id="landing-page" class="px-7 box-border">
+        <div class="w-full max-w-md mx-auto text-center space-y-8 pb-10">
+            <!-- 1. Branding & Action -->
+            <div class="pt-4 animate-in fade-in slide-in-from-top-4 duration-1000">
+                <div class="inline-block p-4 rounded-full logo-container mb-5 w-40 h-40">
+    <img src="https://res.cloudinary.com/do0u3he16/image/upload/v1777846658/Picsart_26-05-04_01-06-01-114_vyko4h.png" 
+         alt="الواقدي" 
+         class="w-full h-full object-contain logo-glow">
+</div>
+
+                <h1 class="text-5xl font-black text-brandYellow mb-1 tracking-tighter">مطعم الواقدي</h1>
+                <p class="text-brandGold font-bold text-lg mb-8">نكهة الأصالة والتميز</p>
+                
+                <button onclick="enterApp()" class="landing-btn bg-brandGold text-brandBrownDark shadow-[0_15px_35px_rgba(251,192,45,0.4)] hover:scale-[1.03] active:scale-95 text-xl py-5 border-b-4 border-brandBrownDark/20">
+                    <i class="fa-solid fa-list-ul"></i> عرض القائمة والطلب
+                </button>
+            </div>
+
+            <!-- 2. Working Hours -->
+            <div class="glass-card rounded-[2.5rem] p-7 text-right space-y-4 shadow-2xl border-brandGold/10">
+    <h3 class="text-brandGold font-black text-xl flex items-center gap-2 border-b border-white/10 pb-4">
+        <i class="fa-solid fa-calendar-days"></i> مواعيد العمل
+    </h3>
+    <div class="space-y-3">
+        <div class="flex justify-between items-center">
+            <span class="text-white/70 text-sm font-bold">السبت</span>
+            <span class="text-brandYellow font-black text-sm">05:00 ص - 12:30 ص</span>
+        </div>
+        <div class="flex justify-between items-center border-t border-white/5 pt-2">
+            <span class="text-white/70 text-sm font-bold">الأحد</span>
+            <span class="text-brandYellow font-black text-sm">05:00 ص - 12:30 ص</span>
+        </div>
+        <div class="flex justify-between items-center border-t border-white/5 pt-2">
+            <span class="text-white/70 text-sm font-bold">الاثنين</span>
+            <span class="text-brandYellow font-black text-sm">05:00 ص - 12:30 ص</span>
+        </div>
+        <div class="flex justify-between items-center border-t border-white/5 pt-2">
+            <span class="text-white/70 text-sm font-bold">الثلاثاء</span>
+            <span class="text-brandYellow font-black text-sm">05:00 ص - 12:30 ص</span>
+        </div>
+        <div class="flex justify-between items-center border-t border-white/5 pt-2">
+            <span class="text-white/70 text-sm font-bold">الأربعاء</span>
+            <span class="text-brandYellow font-black text-sm">05:00 ص - 12:30 ص</span>
+        </div>
+        <div class="flex justify-between items-center border-t border-white/5 pt-2">
+            <span class="text-white/70 text-sm font-bold">الخميس</span>
+            <span class="text-brandYellow font-black text-sm">05:00 ص - 12:30 ص</span>
+        </div>
+        <div class="flex justify-between items-center border-t border-white/5 pt-2">
+            <span class="text-white/70 text-sm font-bold">الجمعة</span>
+            <span class="text-brandYellow font-black text-sm">05:00 ص - 12:30 ص</span>
+        </div>
+    </div>
+</div>
+            </div>
+
+            <!-- 3. Social Platforms -->
+            Social Platforms -->
+            <div class="space-y-4">
+                <p class="text-white/30 text-[11px] font-black uppercase tracking-[0.4em]">تواصل معنا عبر المنصات</p>
+                <div class="flex justify-center gap-5">
+                    <a href="tel:9660555300498" class="w-16 h-16 glass-card rounded-3xl flex items-center justify-center text-brandYellow hover:bg-brandGold hover:text-brandBrownDark transition-all hover:scale-110 shadow-lg">
+                        <i class="fa-solid fa-phone text-3xl"></i>
+                    </a>
+                    <a href="https://www.tiktok.com/@sultanabdulazizalwaqidi?_r=1&_t=ZS-9643bXIhN9Z" class="w-16 h-16 glass-card rounded-3xl flex items-center justify-center text-brandYellow hover:bg-brandGold hover:text-brandBrownDark transition-all hover:scale-110 shadow-lg">
+                        <i class="fa-brands fa-tiktok text-3xl"></i>
+                    </a>
+                </div>
+            </div>
+
+
+
+            <!-- 4. Location -->
+            <div class="pt-2 border-t border-white/5">
+                <a href="https://maps.app.goo.gl/KWVrsXWnZjzS8pkv5?g_st=ac" target="_blank" class="inline-flex items-center gap-3 bg-white/5 px-6 py-3 rounded-full text-brandGold font-black hover:bg-white/10 transition-all border border-brandGold/20">
+                    <i class="fa-solid fa-map-location-dot text-xl"></i>
+                    <span class="text-sm">موقعنا على الخرائط</span>
+                </a>
+            </div>
+            <div class="mt-auto pt-10 flex flex-col items-center gap-4 opacity-70">
+    <p class="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">جميع الحقوق محفوظة لدى مطعم الواقدي &copy; 2026</p>
+    
+    <a href="https://wa.me/966550340929" target="_blank" 
+       class="group flex items-center gap-3 bg-white/5 backdrop-blur-md border border-white/10 px-4 py-2 rounded-xl hover:bg-brandGold/20 transition-all">
+        <span class="text-[10px] text-white/40 font-bold uppercase tracking-tighter">تصميم:</span>
+        <span class="text-[12px] font-black text-brandGold group-hover:text-white transition-colors">Abdulrahman Ayman</span>
+        <i class="fa-brands fa-whatsapp text-[#25D366] text-base group-hover:scale-110 transition-transform"></i>
+    </a>
+</div>
+
+        </div>
+    </div>
+
+    <!-- Navbar -->
+    <nav class="fixed w-full z-50 bg-brandBrownDark text-brandYellow shadow-[0_10px_40px_rgba(0,0,0,0.3)]">
+        <div class="container mx-auto px-5 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <img src="https://res.cloudinary.com/do0u3he16/image/upload/v1777846658/Picsart_26-05-04_01-06-01-114_vyko4h.png" 
+     alt="Logo" 
+     class="w-12 h-12 object-contain logo-glow">
+                <div class="leading-none">
+                    <p class="font-black text-xl tracking-tight">الواقدي</p>
+                    <p class="text-[9px] text-brandGold/80 font-bold uppercase tracking-[0.2em]">Al-Waqidi Menu</p>
+                </div>
+            </div>
+            
+            <button onclick="toggleCart()" class="relative bg-white/10 text-brandYellow px-5 py-2.5 rounded-2xl font-black border border-white/10 flex items-center gap-2 transition-all active:scale-90 shadow-lg">
+                <i class="fa-solid fa-shopping-basket text-brandGold"></i>
+                <span id="cart-count-badge" class="bg-brandGold text-brandBrownDark text-[10px] w-5 h-5 flex items-center justify-center rounded-full absolute -top-1 -right-1 hidden font-bold shadow-lg ring-2 ring-brandBrownDark">0</span>
+                <span class="text-sm">الطلبات</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-5 pt-28 pb-36">
+        <!-- Sticky Categorizer -->
+        <div class="sticky top-[76px] z-40 bg-brandCream/80 backdrop-blur-2xl -mx-5 px-5 py-5 border-b border-brandBrown/5 shadow-sm overflow-x-auto no-scrollbar scroll-smooth">
+            <div id="category-list" class="flex gap-4"></div>
+        </div>
+
+        <div id="menu-sections" class="mt-10 space-y-14">
+            <!-- Categorized Menu Items -->
+        </div>
+    </main>
+
+    <!-- Floating Checkout Summary -->
+    <div id="float-bar" class="fixed bottom-8 left-8 right-8 z-[60] transform translate-y-40 transition-all duration-700 max-w-sm mx-auto">
+        <button onclick="toggleCart()" class="w-full bg-brandBrownDark text-brandYellow p-5 rounded-[2.2rem] shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)] flex justify-between items-center ring-1 ring-white/10">
+            <div class="flex items-center gap-4">
+                <div id="float-qty" class="bg-brandGold text-brandBrownDark w-11 h-11 rounded-2xl flex items-center justify-center font-black text-lg">0</div>
+                <div class="text-right">
+                    <p class="text-[10px] text-brandYellow/40 font-bold tracking-wider">مراجعة سلة الطلب</p>
+                    <p class="font-black text-lg leading-tight">عرض الحساب الكامل</p>
+                </div>
+            </div>
+            <div class="text-left">
+                <span id="float-total" class="text-2xl font-black text-brandGold tracking-tight">0</span>
+                <span class="text-[10px] font-bold mr-1 opacity-60">ريال</span>
+            </div>
+        </button>
+    </div>
+
+    <!-- Cart Sidebar/Modal -->
+    <div id="cart-modal" class="fixed inset-0 bg-brandCream z-[100] hidden flex justify-end">
+    <div class="bg-brandCream w-full md:w-[480px] h-full flex flex-col relative">
+        
+        <div class="p-6 bg-brandBrownDark text-brandYellow shadow-xl z-30">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-3xl font-black">سلة الطلبات</h3>
+                <button onclick="toggleCart()" class="w-12 h-12 flex items-center justify-center rounded-2xl bg-white/10 hover:bg-brandGold hover:text-brandBrownDark transition-all">
+                    <i class="fa-solid fa-xmark text-2xl"></i>
+                </button>
+            </div>
+            
+            <div class="flex bg-white/5 p-1.5 rounded-2xl gap-2 border border-white/10">
+                <div id="tab-pickup" onclick="setOrderType('pickup')" class="type-tab active text-xs py-3"> استلام من الفرع 🥡</div>
+                <div id="tab-delivery" onclick="setOrderType('delivery')" class="type-tab text-xs py-3"> توصيل للمنزل 🚗</div>
+            </div>
+        </div>
+        
+        <div id="cart-items" class="flex-1 overflow-y-auto p-6 space-y-4 no-scrollbar bg-brandCream">
+            </div>
+
+        <div class="p-6 bg-white border-t border-brandBrown/10 shadow-[0_-15px_30px_rgba(0,0,0,0.05)] z-30">
+            <div class="space-y-4 mb-4">
+                <div class="grid grid-cols-1 gap-3">
+                    <input type="text" id="cust-name-input" placeholder="اكتب اسمك الكريم هنا..." class="w-full bg-brandCream border-2 border-brandBrown/5 rounded-2xl p-4 text-sm font-bold outline-none focus:border-brandGold transition-all">
+                    <textarea id="order-notes" placeholder="أي طلبات خاصة؟ (اختياري)" class="w-full bg-brandCream border-2 border-brandBrown/5 rounded-2xl p-4 text-sm font-bold outline-none focus:border-brandGold min-h-[70px] resize-none transition-all"></textarea>
+                </div>
+                
+                <<div class="space-y-2 pt-2 border-t border-brandBrown/5">
+    <div class="flex justify-between items-center text-xs font-bold text-gray-400">
+        <span>المجموع الفرعي:</span>
+        <span id="sub-total">0 ريال</span>
+    </div>
+    
+    <div id="delivery-row" class="flex justify-between items-center text-xs font-bold text-red-500 hidden">
+        <span>رسوم التوصيل:</span>
+        <span>10 ريال</span>
+    </div>
+
+    <div class="flex justify-between items-center pt-1">
+        <span class="text-brandBrownDark font-black text-2xl">الإجمالي:</span>
+        <span id="final-total" class="text-3xl font-black text-brandBrown">0 ريال</span>
+    </div>
+</div>
+            </div>
+            
+            <button onclick="sendOrder()" class="w-full bg-brandBrownDark text-brandYellow py-5 rounded-[1.8rem] font-black text-xl flex justify-center items-center gap-3 hover:bg-brandBrown transition-all shadow-lg active:scale-95">
+                <i class="fa-brands fa-whatsapp text-3xl text-brandGold"></i> إرسال الطلب للواتساب
+            </button>
+        </div>
+    </div>
+</div>
+    </div>
+
+    <script>
+        const WHATSAPP_NUMBER = "966555300498";
+        let orderType = 'pickup';
+        let cart = [];
+        
+        const menuData = [
+    { category: "🫘 قسم الفول والقلابة", items: [
+        { n: "فول سفري صغير", p: 3 }, { n: "فول زيت زيتون", p: 7 }, { n: "فول سمن بري", p: 7 }, { n: "فول بالبيض", p: 10 },
+        { n: "فول بالتونة", p: 10 }, { n: "فول مشكل", p: 9 }, { n: "قلابة صغير سفري", p: 3 }, { n: "قلابة وسط سفري", p: 4 },
+        { n: "قلابة صاج", p: 7 }, { n: "قلابة كبير", p: 6 }, { n: "عدس صاج", p: 7 }, { n: "عدس وسط", p: 4 },
+        { n: "عدس صغير", p: 3 }, { n: "فول بالعدس", p: 9 }
+    ]},
+    { category: "🍳 قسم الصاج", items: [
+        { n: "كبدة طازجة", p: 20 }, { n: "كبدة مشكل", p: 20 }, { n: "لحم مقلقل", p: 20 }, { n: "لحم مشكل", p: 20 },
+        { n: "عقدة دجاج", p: 17 }, { n: "لحسة", p: 12 }, { n: "فحسة باللحم البلدي", p: 30 }, { n: "سلطة صنعاني", p: 15 },
+        { n: "سلطة بالتونة", p: 20 }, { n: "شكشوكة", p: 12 }, { n: "تونة سادة", p: 11 }, { n: "تونة بالبيض", p: 12 },
+        { n: "مجنونة", p: 12 }, { n: "مشنجل", p: 18 }, { n: "تونة بزالية", p: 12 }, { n: "تونة فاصوليا", p: 11 },
+        { n: "تونة بالعدس", p: 11 }, { n: "تونة مشكل", p: 12 }, { n: "بزاليا سادة", p: 8 }, { n: "بزاليا بالبيض", p: 11 },
+        { n: "بزاليا بالعدس", p: 11 }, { n: "بيض عيون", p: 9 }, { n: "بيض مطجن", p: 9 }, { n: "بيض مشكل", p: 10 },
+        { n: "بيض مخلوط", p: 10 }, { n: "بيض رجالة", p: 10 }, { n: "فاصوليا سادة", p: 8 }, { n: "فاصوليا بالبيض", p: 10 },
+        { n: "فاصوليا مشكل", p: 10 }, { n: "قلابة بالجبنة", p: 10 }
+    ]},
+    { category: "🥞 قسم المرسة", items: [
+        { n: "مرسة قشطة", p: 10 }, { n: "مرسة قشطة وعسل", p: 12 }, { n: "مرسة عادي", p: 8 }, { n: "مرسة عسل", p: 10 },
+        { n: "فتة زبيدي", p: 10 }, { n: "فتة جنوبي", p: 10 }
+    ]},
+    { category: "🍚 قسم المعصوب", items: [
+        { n: "معصوب عرانسي", p: 25 }, { n: "معصوب ملكي", p: 17 }, { n: "معصوب كوكتيل", p: 15 }, { n: "معصوب قشطة دبل", p: 14 },
+        { n: "معصوب مشكل", p: 14 }, { n: "معصوب قشطة بالجبن", p: 13 }, { n: "معصوب قشطة بالعسل", p: 14 }, { n: "معصوب قشطة كامل", p: 12 },
+        { n: "معصوب قشطة وعسل", p: 13 }, { n: "معصوب قشطة", p: 8 }, { n: "معصوب عسل", p: 9 }, { n: "معصوب بالجبن", p: 11 },
+        { n: "معصوب عادي", p: 7 }, { n: "معصوب سمن", p: 8 }
+    ]},
+    { category: "🐟 قسم السمك", items: [
+        { n: "سمك أوصال ميفا", p: 80 }, { n: "سمك عقدة ادام", p: 25 }, { n: "صالونة سمك", p: 25 }, { n: "ملوح كبير", p: 4 },
+        { n: "ملوح صغير", p: 2 }, { n: "سلطة جبن", p: 5 }, { n: "تميس بر", p: 2 }, { n: "تميس جبنة", p: 6 },
+        { n: "تميس عادي", p: 1 }, { n: "تميس بسكوت", p: 1 }, { n: "ملوح رطب", p: 5 }
+    ]},
+    { category: "🫓 قسم المطبق", items: [
+        { n: "مطبق مالح لحم بلدي", p: 8 }, { n: "مطبق بدون لحم", p: 8 }, { n: "مطبق جبنة شيدر خضار", p: 9 }, { n: "مطبق جبنة مالح", p: 9 },
+        { n: "مطبق تونة", p: 9 }, { n: "مطبق تونة ولحم", p: 9 }, { n: "مطبق حلو مشكل", p: 10 }, { n: "مطبق جبن حلو", p: 8 },
+        { n: "مطبق جبن سائل", p: 7 }, { n: "مطبق قشطة حلو", p: 7 }, { n: "مطبق حلو موز", p: 8 }, { n: "مطبق حلو موز جبن", p: 8 }
+    ]},
+    { category: "🍲 قسم الحجر", items: [
+        { n: "كبدة حجر", p: 20 }, { n: "لحم حجر", p: 20 }, { n: "لحسة حجر", p: 12 }, { n: "شكشوكة حجر", p: 12 },
+        { n: "مجنونة حجر", p: 13 }, { n: "تونة حجر", p: 12 }, { n: "قلابة حجر", p: 10 }, { n: "عدس حجر", p: 10 },
+        { n: "عريكة حجر", p: 20 }, { n: "معصوبة حجر", p: 20 }, { n: "مرسة حجر", p: 20 }
+    ]},
+    { category: "🍯 قسم العريكة", items: [
+        { n: "عريكة عرانسي", p: 25 }, { n: "عريكة ملكي", p: 17 }, { n: "عريكة مشكل", p: 15 }, { n: "عريكة قشطة دبل", p: 12 },
+        { n: "عريكة قشطة وعسل", p: 14 }, { n: "عريكة قشطة بالجبن", p: 14 }, { n: "عريكة قشطة جبن كامل", p: 13 }, { n: "عريكة قشطة كامل", p: 12 },
+        { n: "عريكة قشطة", p: 11 }, { n: "عريكة بالعسل", p: 10 }, { n: "عريكة بالجبن", p: 8 }
+    ]}
+];
+
+
+        function renderMenu() {
+            const container = document.getElementById('menu-sections');
+            const categoryList = document.getElementById('category-list');
+            let menuHtml = '';
+            let tabsHtml = '';
+
+            menuData.forEach((section, index) => {
+                const secId = `sec-${index}`;
+                tabsHtml += `<button id="tab-${secId}" onclick="scrollToSec('${secId}')" class="category-pill shadow-sm">${section.category}</button>`;
+                menuHtml += `
+                <section id="${secId}" class="scroll-mt-44 px-2">
+                    <div class="flex items-center gap-4 mb-9">
+                        <div class="h-[1px] flex-1 bg-brandBrown/10"></div>
+                        <h3 class="text-3xl font-black text-brandBrownDark tracking-tighter">${section.category}</h3>
+                        <div class="h-[1px] flex-1 bg-brandBrown/10"></div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        ${section.items.map(item => `
+                            <div class="item-card p-6 flex justify-between items-center group relative overflow-hidden backdrop-blur-sm">
+                                <div class="flex-1">
+                                    <h4 class="font-black text-xl text-brandBrownDark mb-1 tracking-tight leading-none">${item.n}</h4>
+                                    <p class="text-brandGold font-black text-2xl">${item.p} <span class="text-[10px] text-brandBrown/40 mr-1 uppercase font-black">ريال</span></p>
+                                </div>
+                                <button onclick="addToCart('${item.n}', ${item.p})" class="bg-brandBrownDark text-brandYellow w-14 h-14 rounded-2xl flex items-center justify-center hover:bg-brandBrown transition-all active:scale-90 shadow-xl relative z-10">
+                                    <i class="fa-solid fa-plus text-xl"></i>
+                                </button>
+                            </div>
+                        `).join('')}
+                    </div>
+                </section>`;
+            });
+            container.innerHTML = menuHtml;
+            categoryList.innerHTML = tabsHtml;
+            if (menuData.length > 0) document.getElementById('tab-sec-0').classList.add('active');
+        }
+
+        function scrollToSec(id) {
+            const el = document.getElementById(id);
+            if(el) el.scrollIntoView({ behavior: 'smooth' });
+            document.querySelectorAll('.category-pill').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`tab-${id}`).classList.add('active');
+        }
+
+        function enterApp() {
+            document.getElementById('landing-page').classList.add('landing-hidden');
+            document.body.style.overflow = 'auto';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function addToCart(n, p) {
+            const existing = cart.find(i => i.n === n);
+            if(existing) existing.q++;
+            else cart.push({n, p, q: 1});
+            updateUI();
+            
+            document.getElementById('float-bar').classList.remove('translate-y-40');
+            Swal.fire({
+                title: 'تم الإضافة',
+                text: n,
+                timer: 900,
+                showConfirmButton: false,
+                toast: true,
+                position: 'bottom-start',
+                background: '#3E2723',
+                color: '#FFFDE7'
+            });
+        }
+
+        function setOrderType(type) {
+            orderType = type;
+            document.getElementById('tab-pickup').className = `type-tab ${type === 'pickup' ? 'active shadow-lg' : ''}`;
+            document.getElementById('tab-delivery').className = `type-tab ${type === 'delivery' ? 'active shadow-lg' : ''}`;
+            document.getElementById('delivery-row').classList.toggle('hidden', type !== 'delivery');
+            updateUI();
+        }
+
+        function updateUI() {
+    const count = cart.reduce((a, b) => a + b.q, 0);
+    const subTotal = cart.reduce((a, b) => a + (b.p * b.q), 0);
+    
+    // حساب رسوم التوصيل
+    const deliveryFee = orderType === 'delivery' ? 10 : 0;
+    const fullTotal = subTotal + deliveryFee;
+    
+    // إظهار أو إخفاء سطر التوصيل في السلة
+    const deliveryRow = document.getElementById('delivery-row');
+    if (deliveryRow) {
+        deliveryRow.classList.toggle('hidden', orderType !== 'delivery');
+    }
+    
+    // تحديث الأرقام في الواجهة
+    document.getElementById('cart-count-badge').innerText = count;
+    document.getElementById('cart-count-badge').classList.toggle('hidden', count === 0);
+    
+    document.getElementById('float-qty').innerText = count;
+    document.getElementById('float-total').innerText = fullTotal;
+    if(count === 0) document.getElementById('float-bar').classList.add('translate-y-40');
+    
+    // تحديث قائمة الأصناف (نفس الكود السابق)
+    const container = document.getElementById('cart-items');
+    if(cart.length === 0) {
+        container.innerHTML = `<div class="flex flex-col items-center justify-center py-24 opacity-20"><i class="fa-solid fa-basket-shopping text-7xl mb-5"></i><p class="font-black text-2xl">السلة فارغة</p></div>`;
+    } else {
+        container.innerHTML = cart.map((item, idx) => `
+            <div class="bg-white border-2 border-brandBrown/5 p-5 rounded-[2.2rem] flex justify-between items-center shadow-sm">
+                <div class="flex-1 px-1">
+                    <h5 class="font-black text-brandBrownDark leading-tight text-lg tracking-tight">${item.n}</h5>
+                    <p class="text-brandGold font-black text-xl">${item.p * item.q} ريال</p>
+                </div>
+                <div class="flex items-center gap-3 bg-brandYellow/40 rounded-3xl p-1.5 border border-brandBrown/5">
+                    <button onclick="changeQty(${idx}, -1)" class="w-10 h-10 flex items-center justify-center bg-white text-brandBrown rounded-2xl transition-all shadow-sm active:scale-90"><i class="fa-solid fa-minus text-xs"></i></button>
+                    <span class="font-black w-6 text-center text-xl">${item.q}</span>
+                    <button onclick="changeQty(${idx}, 1)" class="w-10 h-10 flex items-center justify-center bg-white text-brandBrown rounded-2xl transition-all shadow-sm active:scale-90"><i class="fa-solid fa-plus text-xs"></i></button>
+                </div>
+            </div>`).join('');
+    }
+    
+    document.getElementById('sub-total').innerText = subTotal + " ريال";
+    document.getElementById('final-total').innerText = fullTotal + " ريال";
+}
+
+
+        function changeQty(idx, delta) {
+            cart[idx].q += delta;
+            if(cart[idx].q <= 0) cart.splice(idx, 1);
+            updateUI();
+        }
+
+        function toggleCart() {
+            const modal = document.getElementById('cart-modal');
+            modal.classList.toggle('hidden');
+            document.body.style.overflow = modal.classList.contains('hidden') ? 'auto' : 'hidden';
+            if(!modal.classList.contains('hidden')) updateUI();
+        }
+
+        function sendOrder() {
+    if(cart.length === 0) {
+        Swal.fire({ text: 'السلة فارغة، أضف بعض الأصناف أولاً', icon: 'info', confirmButtonColor: '#3E2723' });
+        return;
+    }
+    
+    const name = document.getElementById('cust-name-input').value.trim();
+    if(!name) {
+        Swal.fire({ text: 'يرجى كتابة اسمك الكريم أولاً ليتمكن المطعم من تجهيز الطلب باسمك', icon: 'error', confirmButtonColor: '#3E2723', background:'#FEF9EF' });
+        return;
+    }
+
+    const notes = document.getElementById('order-notes').value.trim();
+    const subTotal = cart.reduce((a, b) => a + (b.p * b.q), 0);
+    const deliveryFee = orderType === 'delivery' ? 10 : 0;
+    const total = subTotal + deliveryFee;
+    const typeLabel = orderType === 'delivery' ? '🚗 توصيل للمنزل' : '🥡 استلام من الفرع';
+
+    // تنسيق الرسالة "الحلوة"
+    let msg = `*🥘 طلب جديد من مطعم الواقدي*\n`;
+    msg += `*------------------------------*\n`;
+    msg += `👤 *العميل:* ${name}\n`;
+    msg += `📍 *نوع الطلب:* ${typeLabel}\n`;
+    msg += `*------------------------------*\n\n`;
+    
+    msg += `*📦 الأصناف المطلوبة:*\n`;
+    cart.forEach((item, index) => {
+        msg += `${index + 1}. ${item.n} (العدد: ${item.q}) ➔ ${item.p * item.q} ريال\n`;
+    });
+    
+    if(notes) {
+        msg += `\n📝 *ملاحظات خاصة:* ${notes}\n`;
+    }
+
+    msg += `\n*------------------------------*\n`;
+    if(deliveryFee > 0) {
+        msg += `💰 *المجموع:* ${subTotal} ريال\n`;
+        msg += `🚚 *التوصيل:* 10 ريال\n`;
+    }
+    msg += `✨ *الإجمالي النهائي:* ${total} ريال\n`;
+    msg += `*------------------------------*\n`;
+    msg += `\n_تم إرسال الطلب عبر منيو الواقدي الإلكتروني_ 📱`;
+
+    // استخدام الرابط العالمي لفتح واتساب
+    const whatsappUrl = `https://api.whatsapp.com/send?phone=${WHATSAPP_NUMBER}&text=${encodeURIComponent(msg)}`;
+    
+    // فتح الرابط
+    window.open(whatsappUrl, '_blank');
+}
+
+
+        window.onload = () => {
+            renderMenu();
+            document.body.style.overflow = 'hidden'; 
+        };
+    </script>
+    <footer class="mt-20 pb-12 px-5 border-t border-brandBrown/5">
+    <div class="container mx-auto flex flex-col items-center gap-5">
+        
+        <p class="text-[10px] font-bold text-brandBrown/30 uppercase tracking-[0.2em] text-center">
+            جميع الحقوق محفوظة لدى مطعم الواقدي &copy; 2026
+        </p>
+
+        <a href="https://wa.me/966550340929" target="_blank" 
+           class="group flex items-center gap-3 bg-white border border-brandBrown/5 px-5 py-2.5 rounded-2xl shadow-sm hover:shadow-md hover:border-brandGold/30 transition-all duration-500">
+            
+            <span class="text-[10px] text-gray-400 font-bold uppercase tracking-tighter">Design:</span>
+            
+            <div class="h-4 w-[1px] bg-gray-100 group-hover:bg-brandGold/20"></div>
+
+            <div class="flex items-center gap-2">
+                <span class="text-[13px] font-black text-brandBrownDark group-hover:text-brandGold transition-colors">
+                    Abdulrahman Ayman
+                </span>
+                <div class="w-7 h-7 bg-[#25D366]/10 rounded-lg flex items-center justify-center group-hover:bg-[#25D366] transition-all">
+                    <i class="fa-brands fa-whatsapp text-[#25D366] group-hover:text-white text-sm"></i>
+                </div>
+            </div>
+        </a>
+    </div>
+</footer>
+</body>
+</html>

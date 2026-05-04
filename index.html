@@ -37,15 +37,25 @@
     
     /* Landing Screen Styles */
     #landing-page {
-    position: fixed; inset: 0; z-index: 9999; 
-    display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
-    /* تم تحديث الرابط هنا مع الحفاظ على التدرج الظلي */
-    background: linear-gradient(rgba(62, 39, 35, 0.85), rgba(62, 39, 35, 0.95)), url('https://res.cloudinary.com/do0u3he16/image/upload/v1777847893/d17c66373a1f2c9fd1f8dcaf336cd053_jfvw1x.jpg');
+    position: fixed; 
+    inset: 0; 
+    z-index: 9999; 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    justify-content: flex-start;
+    background: linear-gradient(rgba(62, 39, 35, 0.85), rgba(62, 39, 35, 0.95)), 
+                url('https://res.cloudinary.com/do0u3he16/image/upload/v1777847893/d17c66373a1f2c9fd1f8dcaf336cd053_jfvw1x.jpg');
     background-size: cover; 
     background-position: center;
-    transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-    overflow-y: auto; padding-top: 3rem; padding-bottom: 3rem;
+    background-attachment: fixed; /* لتثبيت الخلفية تماماً */
+    /* التعديل الجوهري: حددنا ما يتحرك فقط لمنع اهتزاز الخلفية */
+    transition: opacity 0.8s ease, visibility 0.8s ease, transform 0.8s ease; 
+    overflow-y: auto; 
+    padding-top: 3rem; 
+    padding-bottom: 3rem;
 }
+
 
     .landing-hidden { opacity: 0; visibility: hidden; pointer-events: none; transform: translateY(-20px); }
 
@@ -88,14 +98,25 @@
     animation: glow-pulse 2s ease-in-out infinite alternate;
 }
 
+/* التعديل النهائي لتثبيت الحجم ومنع الحركة */
 @keyframes glow-pulse {
     from { 
-        filter: drop-shadow(0 0 5px rgba(251, 192, 45, 0.6)); 
+        filter: drop-shadow(0 0 5px rgba(251, 192, 45, 0.6));
+        transform: scale(1); /* تثبيت الحجم عند 1 */
     }
     to { 
-        filter: drop-shadow(0 0 20px rgba(251, 192, 45, 1)); 
+        filter: drop-shadow(0 0 20px rgba(251, 192, 45, 1));
+        transform: scale(1); /* التأكد من عدم التغير عند نهاية الحركة */
     }
 }
+
+.logo-glow {
+    filter: drop-shadow(0 0 10px rgba(251, 192, 45, 0.8));
+    animation: glow-pulse 2s ease-in-out infinite alternate;
+    /* إضافة هذا السطر لضمان عدم تأثر الصورة بأي تحريك خارجي */
+    will-change: filter; 
+}
+
 
 .logo-container {
     background: rgba(251, 192, 45, 0.05);
@@ -334,7 +355,7 @@
     ]},
     { category: "🍳 قسم الصاج", items: [
         { n: "كبدة طازجة", p: 20 }, { n: "كبدة مشكل", p: 20 }, { n: "لحم مقلقل", p: 20 }, { n: "لحم مشكل", p: 20 },
-        { n: "عقدة دجاج", p: 17 }, { n: "لحسة", p: 12 }, { n: "فحسة باللحم البلدي", p: 30 }, { n: "سلطة صنعاني", p: 15 },
+        { n: "عقدة دجاج", p: 17 }, { n: "لحسة", p: 12 }, { n: "لحسة باللحم البلدي", p: 30 }, { n: "سلطة صنعاني", p: 15 },
         { n: "سلطة بالتونة", p: 20 }, { n: "شكشوكة", p: 12 }, { n: "تونة سادة", p: 11 }, { n: "تونة بالبيض", p: 12 },
         { n: "مجنونة", p: 12 }, { n: "مشنجل", p: 18 }, { n: "تونة بزالية", p: 12 }, { n: "تونة فاصوليا", p: 11 },
         { n: "تونة بالعدس", p: 11 }, { n: "تونة مشكل", p: 12 }, { n: "بزاليا سادة", p: 8 }, { n: "بزاليا بالبيض", p: 11 },
@@ -419,10 +440,14 @@
         }
 
         function enterApp() {
-            document.getElementById('landing-page').classList.add('landing-hidden');
-            document.body.style.overflow = 'auto';
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
+    document.getElementById('landing-page').classList.add('landing-hidden');
+    document.body.style.overflow = 'auto';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    
+    // إضافة حالة جديدة للتاريخ لتمكين زر الرجوع
+    history.pushState({ page: 'menu' }, '');
+}
+
 
         function addToCart(n, p) {
             const existing = cart.find(i => i.n === n);
@@ -504,11 +529,25 @@
         }
 
         function toggleCart() {
-            const modal = document.getElementById('cart-modal');
-            modal.classList.toggle('hidden');
-            document.body.style.overflow = modal.classList.contains('hidden') ? 'auto' : 'hidden';
-            if(!modal.classList.contains('hidden')) updateUI();
+    const modal = document.getElementById('cart-modal');
+    const isHidden = modal.classList.contains('hidden');
+    
+    if (isHidden) {
+        modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+        updateUI();
+        // إضافة حالة للسلة
+        history.pushState({ page: 'cart' }, '');
+    } else {
+        modal.classList.add('hidden');
+        document.body.style.overflow = 'auto';
+        // الرجوع للخلف برمجياً لتنظيف الـ History
+        if (history.state && history.state.page === 'cart') {
+            history.back();
         }
+    }
+}
+
 
         function sendOrder() {
     if(cart.length === 0) {
@@ -565,6 +604,24 @@
             renderMenu();
             document.body.style.overflow = 'hidden'; 
         };
+        window.onpopstate = function(event) {
+    const landing = document.getElementById('landing-page');
+    const cartModal = document.getElementById('cart-modal');
+
+    // إذا رجع المستخدم ولم تكن هناك حالة (يعني عاد لصفحة البداية)
+    if (!event.state) {
+        landing.classList.remove('landing-hidden');
+        cartModal.classList.add('hidden');
+        document.body.style.overflow = 'hidden';
+    } 
+    // إذا رجع من السلة للمنيو
+    else if (event.state.page === 'menu') {
+        cartModal.classList.add('hidden');
+        landing.classList.add('landing-hidden');
+        document.body.style.overflow = 'auto';
+    }
+};
+
     </script>
     <footer class="mt-20 pb-12 px-5 border-t border-brandBrown/5">
     <div class="container mx-auto flex flex-col items-center gap-5">
